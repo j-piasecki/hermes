@@ -100,7 +100,7 @@ function build_framework {
 # group the frameworks together to create a universal framework
 function build_universal_framework {
     if [ ! -d destroot/Library/Frameworks/universal/hermesvm.xcframework ]; then
-        create_universal_framework "iphoneos" "iphonesimulator" "catalyst" "xros" "xrsimulator" "appletvos" "appletvsimulator"
+        create_universal_framework "iphoneos" "iphonesimulator" #"catalyst" "xros" "xrsimulator" "appletvos" "appletvsimulator"
     else
         echo "Skipping; Clean \"destroot\" to rebuild".
     fi
@@ -112,11 +112,11 @@ function create_framework {
     if [ ! -d destroot/Library/Frameworks/universal/hermesvm.xcframework ]; then
         build_framework "iphoneos"
         build_framework "iphonesimulator"
-        build_framework "appletvos"
-        build_framework "appletvsimulator"
-        build_framework "catalyst"
-        build_framework "xros"
-        build_framework "xrsimulator"
+        # build_framework "appletvos"
+        # build_framework "appletvsimulator"
+        # build_framework "catalyst"
+        # build_framework "xros"
+        # build_framework "xrsimulator"
         build_universal_framework
     else
         echo "Skipping; Clean \"destroot\" to rebuild".
