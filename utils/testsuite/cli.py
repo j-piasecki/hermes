@@ -384,25 +384,50 @@ async def run(
         # already zero, wait until one running task is done, which will release
         # the Semaphore and increment the counter.
         async with current_n_tasks:
-            return await fut
+            try:
+                return await fut
+            except Exception as e:
+                # Log the exception but don't let it break the entire test run
+                if verbose:
+                    print(f"Task failed with exception: {e}")
+                # Return a failed test result instead of propagating the exception
+                return TestCaseResult(
+                    "unknown", TestResultCode.EXECUTE_FAILED, f"Task exception: {e}", str(e)
+                )
 
     failed_cases = defaultdict(list)
     # Similar to skipped_tests, but only store those passed.
     skipped_passed = {}
+    completed_tasks = 0
+    total_tasks = len(tasks)
+    
+    if verbose:
+        print(f"Starting {total_tasks} test tasks...")
+    
     for task in asyncio.as_completed([wrap_task(fut) for fut in tasks]):
-        result = await task
-        stats[result.code] += 1
-        pd.update(result)
-        if result.code.is_failure:
-            failed_cases[result.code].append(result.test_name)
-        # Some tests might be skipped due to unsupported features, we should consider
-        # them as "passed" as well since they will be skipped anyway.
-        if (
-            result.code == TestResultCode.TEST_PASSED
-            or result.code == TestResultCode.TEST_SKIPPED
-        ):
-            if test_suite_dir := skipped_tests.get(result.test_name):
-                skipped_passed[result.test_name] = test_suite_dir
+        try:
+            result = await task
+            completed_tasks += 1
+            
+            if verbose and completed_tasks % 100 == 0:
+                print(f"Completed {completed_tasks}/{total_tasks} tasks...")
+                
+            stats[result.code] += 1
+            pd.update(result)
+            if result.code.is_failure:
+                failed_cases[result.code].append(result.test_name)
+            # Some tests might be skipped due to unsupported features, we should consider
+            # them as "passed" as well since they will be skipped anyway.
+            if (
+                result.code == TestResultCode.TEST_PASSED
+                or result.code == TestResultCode.TEST_SKIPPED
+            ):
+                if test_suite_dir := skipped_tests.get(result.test_name):
+                    skipped_passed[result.test_name] = test_suite_dir
+        except Exception as e:
+            if verbose:
+                print(f"Error processing task result: {e}")
+            # Continue with the next task
 
     pd.finish()
     elapsed = time.time() - start_time

@@ -97,7 +97,7 @@ async def run(
     if sys.platform == "linux":
         env["ICU_DATA"] = compile_run_args.binary_directory
     proc = await create_subprocess_exec(
-        *cmd_args, env=env, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+        *cmd_args, env=env, stderr=subprocess.PIPE, stdout=subprocess.PIPE, stdin=subprocess.DEVNULL
     )
     stdout, stderr = (None, None)
     try:
@@ -189,6 +189,7 @@ async def compile_with_args(
         *args,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
+        stdin=subprocess.DEVNULL,
     )
     stdout, stderr = (None, None)
     try:
@@ -360,6 +361,7 @@ async def run_hermes_simple(
         *args,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        stdin=subprocess.DEVNULL,
     )
     stdout, stderr = (None, None)
     try:
