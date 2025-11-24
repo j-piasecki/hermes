@@ -336,7 +336,7 @@ class TestingProgressDisplay(object):
         self.progressBar.update(float(self.completed) / self.numTests, test.test_name)
 
         is_failure = test.code.is_failure
-        shouldShow = is_failure or self.verbose
+        shouldShow = (is_failure or self.verbose) and not test.code.is_skipped
         if not shouldShow:
             return
 
@@ -352,8 +352,8 @@ class TestingProgressDisplay(object):
         if shouldShow:
             if is_failure:
                 print("%s TEST '%s' FAILED %s" % ("*" * 20, test.test_name, "*" * 20))
-            print(test.output)
-            print("*" * 80)
+            # print(test.output)
+            # print("*" * 80)
 
         # Ensure the output is flushed.
         sys.stdout.flush()

@@ -38,6 +38,14 @@ class TestResultCode(Enum):
             and self != TestResultCode.TEST_PERMANENTLY_SKIPPED
         )
 
+    @property
+    def is_skipped(self) -> bool:
+        """Return whether this code indicates a test skipped."""
+        return (
+            self == TestResultCode.TEST_SKIPPED
+            or self == TestResultCode.TEST_PERMANENTLY_SKIPPED
+        )
+
 
 @dataclass
 class TestCaseResult(object):
