@@ -302,7 +302,7 @@ async def run(
     tests_home = os.path.commonpath(tests_paths)
     tests_files = utils.list_all_files(tests_paths)
 
-    header = f"-- Testing: {len(tests_files)} tests, max {n_jobs} concurrent tasks --"
+    header = f"-- Testing: {len(tests_files)} tests, max {3} concurrent tasks --"
     try:
         term = TerminalController()
         pb = ProgressBar(term, header)
@@ -310,7 +310,7 @@ async def run(
         print(header)
         pb = SimpleProgressBar("Testing: ")
     pd = TestingProgressDisplay(len(tests_files), pb, verbose)
-    current_n_tasks = Semaphore(n_jobs)
+    current_n_tasks = Semaphore(3)
 
     start_time = time.time()
     tasks = []
